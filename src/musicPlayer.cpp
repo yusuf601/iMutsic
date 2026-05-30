@@ -3,10 +3,10 @@
 #include "utils.h"
 #include <cstdio>
 #include <cstdlib>
-#include <valgrind/memcheck.h>
 
 MusicPlayer::MusicPlayer()
-    : head(nullptr), current(nullptr), tail(nullptr), isPlayed(false) {}
+    : head(nullptr), current(nullptr), tail(nullptr), isPlayed(false),
+      endOfsong(false) {}
 
 MusicPlayer::~MusicPlayer() {
     if (isPlayed) {
@@ -21,13 +21,18 @@ MusicPlayer::~MusicPlayer() {
         delete temp;
         temp = nextSong;
     }
-    printf("the Playlist and Audio memory are cleaned");
+    head = nullptr;
+    current = nullptr;
+    tail = nullptr;
+    printf("\nthe Playlist and Audio memory are cleaned");
 }
 
-void MusicPlayer::addSong(std::string songTitle, std::string filepath) {
-    audio_song* new_songs = new audio_song(songTitle, filepath);
+void MusicPlayer::addSong(int idlist, std::string songTitle,
+                          std::string filepath) {
+    audio_song* new_songs = new audio_song(idlist, songTitle, filepath);
 
     if (head == nullptr) {
+        printf("initialize newsong to all nodes\n");
         head = new_songs;
         tail = new_songs;
         current = new_songs;
@@ -37,8 +42,8 @@ void MusicPlayer::addSong(std::string songTitle, std::string filepath) {
         new_songs->prev = tail;
         tail = new_songs;
     }
-    printf("push the filepath: %s song title: %s\n", songTitle.c_str(),
-           filepath.c_str());
+    printf("push the filepath: %s song title: %s\n", tail->songTitle.c_str(),
+           tail->filepath.c_str());
 }
 
 void MusicPlayer::data_callback(ma_device* pDevice, void* pOutput,
@@ -49,7 +54,13 @@ void MusicPlayer::data_callback(ma_device* pDevice, void* pOutput,
         return;
     }
 
-    ma_decoder_read_pcm_frames(&player->pDecoder, pOutput, frameCount, NULL);
+    ma_uint64 framesRead = 0;
+    if (ma_decoder_read_pcm_frames(&player->pDecoder, pOutput, frameCount,
+                                   &framesRead) &&
+        framesRead == MA_SUCCESS) {
+        ma_decoder_seek_to_pcm_frame(&player->pDecoder, framesRead);
+        player->endOfsong = true;
+    }
     (void)pInput;
 }
 
@@ -83,23 +94,20 @@ void MusicPlayer::currentPlay() {
 
     ma_device_start(&pDevice);
     isPlayed = true;
-    printf("Playing the song: %s", current->songTitle.c_str());
-    getchar();
+    printf("Playing the song: %s\n", current->songTitle.c_str());
 }
 
 void MusicPlayer::nextPlay() {
-    if (current == nullptr && current->next == nullptr) {
-        printf("\n tidak ada playlist di next");
+    // checking current->next if playlist has one song
+    if (current->next == nullptr) {
+        current->next = head;
         return;
     }
-    /*
-     * Traverse all the next node to completely the audio playlist
-     *
-     * */
-    while (current->next != nullptr) {
-        current = current->next;
-        currentPlay();
-    }
+
+    // Traverse circularly the next node to complete the audio playlist
+    current = current->next;
+    currentPlay();
+    tail->next = head;
 }
 
 void MusicPlayer::prevPlay() {
@@ -107,8 +115,11 @@ void MusicPlayer::prevPlay() {
         printf("\n tidak ada playlist di prev");
         return;
     }
-    current = current->prev;
-    currentPlay();
+    while (current->prev != nullptr) {
+        current = current->prev;
+        currentPlay();
+        tail->prev = head->next;
+    }
 }
 
 void MusicPlayer::playList() {
@@ -116,9 +127,19 @@ void MusicPlayer::playList() {
         return;
     }
     printf("======Playlist=====\n");
-    while (head->next != nullptr) {
-
-        printf("%s\n", head->songTitle.c_str());
+    while (head != nullptr) {
+        printf("%d", head->idList);
+        if (head->next != nullptr) {
+            printf("->");
+        }
         head = head->next;
+    }
+}
+
+void MusicPlayer::loopingPlayback() {
+    if (endOfsong == true) {
+        printf("\nlagu selesai mainkan playlist selanjutnya\n");
+        nextPlay();
+        endOfsong = false;
     }
 }
