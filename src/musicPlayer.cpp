@@ -2,6 +2,8 @@
 #include "musicPlayer.h"
 #include "utils.h"
 #include <cstdio>
+#include <cstdlib>
+#include <valgrind/memcheck.h>
 
 MusicPlayer::MusicPlayer()
     : head(nullptr), current(nullptr), tail(nullptr), isPlayed(false) {}
@@ -13,9 +15,9 @@ MusicPlayer::~MusicPlayer() {
     }
 
     audio_song* temp = head;
-    while (temp->next != nullptr) {
-        printf("Duty of handling memory Leaks\n");
+    while (temp != nullptr) {
         audio_song* nextSong = temp->next;
+        printf("Duty of handling memory Leaks\n");
         delete temp;
         temp = nextSong;
     }
@@ -25,7 +27,7 @@ MusicPlayer::~MusicPlayer() {
 void MusicPlayer::addSong(std::string songTitle, std::string filepath) {
     audio_song* new_songs = new audio_song(songTitle, filepath);
 
-    if (head == nullptr || current == nullptr || tail == nullptr) {
+    if (head == nullptr) {
         head = new_songs;
         tail = new_songs;
         current = new_songs;
@@ -90,8 +92,14 @@ void MusicPlayer::nextPlay() {
         printf("\n tidak ada playlist di next");
         return;
     }
-    current = current->next;
-    currentPlay();
+    /*
+     * Traverse all the next node to completely the audio playlist
+     *
+     * */
+    while (current->next != nullptr) {
+        current = current->next;
+        currentPlay();
+    }
 }
 
 void MusicPlayer::prevPlay() {
@@ -101,4 +109,16 @@ void MusicPlayer::prevPlay() {
     }
     current = current->prev;
     currentPlay();
+}
+
+void MusicPlayer::playList() {
+    if (current == nullptr) {
+        return;
+    }
+    printf("======Playlist=====\n");
+    while (head->next != nullptr) {
+
+        printf("%s\n", head->songTitle.c_str());
+        head = head->next;
+    }
 }
