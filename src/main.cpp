@@ -4,12 +4,16 @@
 
 int main(int argc, const char* argv[]) {
     MusicPlayer musicPlayer;
+    bool isRunning = true;
 
-    musicPlayer.addSong("meme vine-boom", "audio_files/vine-boom.wav");
-    musicPlayer.addSong("onesevenbeatxs", "audio_files/onesevenbeatxs.mp3");
+    musicPlayer.addSong(0, "meme vine-boom", "audio_files/vine-boom.wav");
+    musicPlayer.addSong(1, "meme fahh", "audio_files/fahhh.mp3");
+    musicPlayer.addSong(2, "meme heehee", "audio_files/heehee.mp3");
+
     musicPlayer.currentPlay();
-    musicPlayer.nextPlay();
-    musicPlayer.prevPlay();
+    while (isRunning) {
+        musicPlayer.loopingPlayback();
+    }
 
     return 0;
 }
