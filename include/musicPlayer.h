@@ -2,6 +2,7 @@
 #define MUSIC_PLAYER_H
 
 #include "utils.h"
+#include <atomic>
 
 class MusicPlayer {
    public:
@@ -10,8 +11,9 @@ class MusicPlayer {
     void currentPlay();
     void nextPlay();
     void prevPlay();
-    void addSong(std::string songTitle, std::string filepath);
+    void addSong(int idlist, std::string songTitle, std::string filepath);
     void playList();
+    void loopingPlayback();
     static void data_callback(ma_device* pDevice, void* pOutput,
                               const void* pInput, ma_uint32 frameCount);
 
@@ -20,6 +22,7 @@ class MusicPlayer {
     audio_song* current;
     audio_song* tail;
     ma_decoder pDecoder;
+    std::atomic<bool> endOfsong;
     ma_device pDevice;
     bool isPlayed;
 };
