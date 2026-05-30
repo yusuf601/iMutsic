@@ -11,6 +11,7 @@ class MusicPlayer {
     void nextPlay();
     void prevPlay();
     void addSong(std::string songTitle, std::string filepath);
+    void playList();
     static void data_callback(ma_device* pDevice, void* pOutput,
                               const void* pInput, ma_uint32 frameCount);
 
