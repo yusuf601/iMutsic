@@ -6,10 +6,6 @@
 class MusicPlayer {
    public:
     MusicPlayer();
-    // MusicPlayer(MusicPlayer&&) = default;
-    // MusicPlayer(const MusicPlayer&) = default;
-    // MusicPlayer& operator=(MusicPlayer&&) = default;
-    // MusicPlayer& operator=(const MusicPlayer&) = default;
     ~MusicPlayer();
     void currentPlay();
     void nextPlay();
