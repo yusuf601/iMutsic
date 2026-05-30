@@ -1,0 +1,8 @@
+[
+{
+  "directory": "/home/aen/Projects/C/iMutsic/build",
+  "command": "/usr/bin/c++  -I/home/aen/Projects/C/iMutsic/include -std=gnu++17 -o CMakeFiles/iMutsic.dir/src/main.cpp.o -c /home/aen/Projects/C/iMutsic/src/main.cpp",
+  "file": "/home/aen/Projects/C/iMutsic/src/main.cpp",
+  "output": "CMakeFiles/iMutsic.dir/src/main.cpp.o"
+}
+]
