@@ -27,6 +27,9 @@ class Iterator{
             current = current->prev;
             return temp;
         }
+        audio_song& operator*()const{
+            return *current;
+        }
         bool operator!=(const Iterator& comp){
             return current != comp.current;
         }

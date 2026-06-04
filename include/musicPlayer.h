@@ -2,13 +2,11 @@
 #define MUSIC_PLAYER_H
 
 #include "utils.h"
-#include "iterator_pattern/iterator.hpp"
-#include <atomic>
-
+#include "playlist_manager.hpp"
 class MusicPlayer {
    public:
-    MusicPlayer();
-    ~MusicPlayer();
+   Playlist_Manager manager;
+   public:
     void currentPlay();
     void nextPlay();
     void prevPlay();
@@ -17,23 +15,6 @@ class MusicPlayer {
     void loopingPlayback();
     static void data_callback(ma_device* pDevice, void* pOutput,
                               const void* pInput, ma_uint32 frameCount);
-
-   private:
-    audio_song* head;
-    audio_song* current;
-    audio_song* tail;
-    ma_decoder pDecoder;
-    std::atomic<bool> endOfsong;
-    ma_device pDevice;
-    bool isPlayed;
-
-    public:
-        Iterator begin(){
-            return Iterator(head);
-        }
-        Iterator end(){
-            return Iterator(nullptr);
-        }
-};
+  };
 
 #endif  // !MUSIC_PLAYER_H

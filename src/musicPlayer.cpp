@@ -1,145 +1,123 @@
 
 #include "../include/musicPlayer.h"
+#include "../include/playlist_manager.hpp"
 #include "utils.h"
 #include <cstdio>
 #include <cstdlib>
-MusicPlayer::MusicPlayer()
-    : head(nullptr), current(nullptr), tail(nullptr), isPlayed(false),
-      endOfsong(false) {}
-
-MusicPlayer::~MusicPlayer() {
-    if (isPlayed) {
-        ma_device_uninit(&pDevice);
-        ma_decoder_uninit(&pDecoder);
-    }
-
-    audio_song* temp = head;
-    while (temp != nullptr) {
-        audio_song* nextSong = temp->next;
-        printf("Duty of handling memory Leaks\n");
-        delete temp;
-        temp = nextSong;
-    }
-    head = nullptr;
-    current = nullptr;
-    tail = nullptr;
-    printf("\nthe Playlist and Audio memory are cleaned");
-}
-
 void MusicPlayer::addSong(int idlist, std::string songTitle,
                           std::string filepath) {
     audio_song* new_songs = new audio_song(idlist, songTitle, filepath);
 
-    if (head == nullptr) {
+    if (manager.head == nullptr) {
         printf("initialize newsong to all nodes\n");
-        head = new_songs;
-        tail = new_songs;
-        current = new_songs;
+        manager.head = new_songs;
+        manager.tail = new_songs;
+        manager.current = new_songs;
         return;
     } else {
-        tail->next = new_songs;
-        new_songs->prev = tail;
-        tail = new_songs;
+        manager.tail->next = new_songs;
+        new_songs->prev = manager.tail;
+        manager.tail = new_songs;
     }
-    printf("push the filepath: %s song title: %s\n", tail->songTitle.c_str(),
-           tail->filepath.c_str());
+    printf("push the filepath: %s song title: %s\n", manager.tail->songTitle.c_str(),
+           manager.tail->filepath.c_str());
 }
 
 void MusicPlayer::data_callback(ma_device* pDevice, void* pOutput,
                                 const void* pInput, ma_uint32 frameCount) {
     MusicPlayer* player = (MusicPlayer*)pDevice->pUserData;
 
-    if (player == nullptr || !player->isPlayed) {
+    if (player == nullptr || !player->manager.isPlayed) {
         return;
     }
 
     ma_uint64 framesRead = 0;
-    if (ma_decoder_read_pcm_frames(&player->pDecoder, pOutput, frameCount,
+    if (ma_decoder_read_pcm_frames(&player->manager.pDecoder, pOutput, frameCount,
                                    &framesRead) &&
         framesRead == MA_SUCCESS) {
-        ma_decoder_seek_to_pcm_frame(&player->pDecoder, framesRead);
-        player->endOfsong = true;
+        ma_decoder_seek_to_pcm_frame(&player->manager.pDecoder, framesRead);
+        player->manager.endOfsong = true;
     }
     (void)pInput;
 }
 
 void MusicPlayer::currentPlay() {
-    if (current == nullptr) {
+    if (manager.current == nullptr) {
         return;
     }
-    if (isPlayed) {
-        ma_device_uninit(&pDevice);
-        ma_decoder_uninit(&pDecoder);
+    if (manager.isPlayed) {
+        ma_device_uninit(&manager.pDevice);
+        ma_decoder_uninit(&manager.pDecoder);
     }
 
-    if (ma_decoder_init_file(current->filepath.c_str(), NULL, &pDecoder) !=
+    if (ma_decoder_init_file(manager.current->filepath.c_str(), NULL, &manager.pDecoder) !=
         MA_SUCCESS) {
-        printf("\nERROR init filepath: %s", current->filepath.c_str());
+        printf("\nERROR init filepath: %s", manager.current->filepath.c_str());
         return;
     }
 
     ma_device_config config = ma_device_config_init(ma_device_type_playback);
-    config.playback.format = pDecoder.outputFormat;
-    config.playback.channels = pDecoder.outputChannels;
-    config.sampleRate = pDecoder.outputSampleRate;
+    config.playback.format = manager.pDecoder.outputFormat;
+    config.playback.channels = manager.pDecoder.outputChannels;
+    config.sampleRate = manager.pDecoder.outputSampleRate;
 
     config.dataCallback = data_callback;
     config.pUserData = this;
 
-    if (ma_device_init(NULL, &config, &pDevice) != MA_SUCCESS) {
+    if (ma_device_init(NULL, &config, &manager.pDevice) != MA_SUCCESS) {
         printf("ERROR init device\n");
         return;
     }
 
-    ma_device_start(&pDevice);
-    isPlayed = true;
-    printf("Playing the song: %s\n", current->songTitle.c_str());
+    ma_device_start(&manager.pDevice);
+    manager.isPlayed = true;
+    printf("Playing the song: %s\n", manager.current->songTitle.c_str());
 }
 
 void MusicPlayer::nextPlay() {
-    // checking current->next if playlist has one song
-    if (current->next == nullptr) {
-        current->next = head;
+    // checking manager.current->next if playlist has one song
+    if (manager.current->next == nullptr) {
+        manager.current->next = manager.head;
         return;
     }
 
     // Traverse circularly the next node to complete the audio playlist
-    current = current->next;
+    manager.current = manager.current->next;
     currentPlay();
-    tail->next = head;
+    manager.tail->next = manager.head;
 }
 
 void MusicPlayer::prevPlay() {
-    if (current == nullptr && current->prev == nullptr) {
+    if (manager.current == nullptr && manager.current->prev == nullptr) {
         printf("\n tidak ada playlist di prev");
         return;
     }
 
-    while (current->prev != nullptr) {
-        current = current->prev;
+    while (manager.current->prev != nullptr) {
+        manager.current = manager.current->prev;
         currentPlay();
-        tail->prev = head->next;
+        manager.tail->prev = manager.head->next;
     }
 }
 
 void MusicPlayer::playList() {
-    if (current == nullptr) {
+    if (manager.current == nullptr) {
         return;
     }
     printf("======Playlist=====\n");
-    while (head != nullptr) {
-        printf("%d", head->idList);
-        if (head->next != nullptr) {
+    while (manager.head != nullptr) {
+        printf("%d", manager.head->idList);
+        if (manager.head->next != nullptr) {
             printf("->");
         }
-        head = head->next;
+        manager.head = manager.head->next;
     }
 }
 
 void MusicPlayer::loopingPlayback() {
-    if (endOfsong == true) {
+    if (manager.endOfsong == true) {
         printf("\nlagu selesai mainkan playlist selanjutnya\n");
         nextPlay();
-        endOfsong = false;
+        manager.endOfsong = false;
     }
 }
