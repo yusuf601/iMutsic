@@ -19,7 +19,7 @@ include_directories(include
 
 file(GLOB SOURCES "src/*.cpp")
 add_executable(iMutsic ${SOURCES})
-include_directories(include)
+target_include_directories(iMutsic PRIVATE include)
 
 # LINKING: PAIRING PROGRAMS USE FFMPEG AND LIBAVCODEC LIBRARY
 target_link_libraries(iMutsic 
