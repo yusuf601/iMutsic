@@ -2,6 +2,7 @@
 #define MUSIC_PLAYER_H
 
 #include "utils.h"
+#include "iterator_pattern/iterator.hpp"
 #include <atomic>
 
 class MusicPlayer {
@@ -25,6 +26,14 @@ class MusicPlayer {
     std::atomic<bool> endOfsong;
     ma_device pDevice;
     bool isPlayed;
+
+    public:
+        Iterator begin(){
+            return Iterator(head);
+        }
+        Iterator end(){
+            return Iterator(nullptr);
+        }
 };
 
 #endif  // !MUSIC_PLAYER_H

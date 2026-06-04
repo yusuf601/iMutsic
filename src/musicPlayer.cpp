@@ -1,9 +1,8 @@
 
-#include "musicPlayer.h"
+#include "../include/musicPlayer.h"
 #include "utils.h"
 #include <cstdio>
 #include <cstdlib>
-
 MusicPlayer::MusicPlayer()
     : head(nullptr), current(nullptr), tail(nullptr), isPlayed(false),
       endOfsong(false) {}
@@ -115,6 +114,7 @@ void MusicPlayer::prevPlay() {
         printf("\n tidak ada playlist di prev");
         return;
     }
+
     while (current->prev != nullptr) {
         current = current->prev;
         currentPlay();

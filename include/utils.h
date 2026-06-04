@@ -8,10 +8,10 @@ struct audio_song {
     struct audio_song* prev;
 
     int idList;
-    std::string songTitle;
-    std::string filepath;
+    const std::string songTitle;
+    const std::string filepath;
 
-    audio_song(int idList, std::string s, std::string f)
+    audio_song(int idList, const std::string s, const std::string f)
         : idList(idList), songTitle(s), filepath(f) {
         prev = nullptr;
         next = nullptr;

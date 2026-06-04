@@ -1,6 +1,5 @@
 
-#include "musicPlayer.h"
-#include <cstdio>
+#include "../include/musicPlayer.h"
 
 int main(int argc, const char* argv[]) {
     MusicPlayer musicPlayer;
