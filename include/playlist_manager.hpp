@@ -4,7 +4,6 @@
 #include "iterator_pattern/iterator.hpp"
 #include "../include/mode.hpp"
 #include "miniaudio.h"
-#include <atomic>
 class Playlist_Manager{
     public:
         Playlist_Manager();

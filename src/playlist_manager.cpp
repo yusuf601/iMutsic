@@ -29,11 +29,11 @@ void Playlist_Manager::push_back(audio_song* song){
     tail = song;
 }
 void Playlist_Manager::info_playlist(){
-    if (get_current() == nullptr) {
+    if (current == nullptr) {
         return;
     }
     printf("======Playlist=====\n");
-    while (get_head() != nullptr) {
+    while (head) {
         printf("%d", head->idList);
         if (head->next != nullptr) {
             printf("->");
@@ -44,8 +44,7 @@ void Playlist_Manager::info_playlist(){
 void Playlist_Manager::next(){
     if(!current)return;
     if(!current->next){
-        current->next = head;
-        current = current->next;
+        current = head;
         //endOfsong = true;
         return;
     }
