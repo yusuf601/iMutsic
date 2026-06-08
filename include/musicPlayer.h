@@ -1,11 +1,17 @@
 #ifndef MUSIC_PLAYER_H
 #define MUSIC_PLAYER_H
-
+#include <atomic>
 #include "utils.h"
 #include "playlist_manager.hpp"
 class MusicPlayer {
    public:
    Playlist_Manager manager;
+   ma_decoder pDecoder;
+   std::atomic<bool> endOfsong;
+   ma_device pDevice;
+   bool isPlayed;
+   MusicPlayer();
+   ~MusicPlayer();
    public:
     void currentPlay();
     void nextPlay();

@@ -1,7 +1,11 @@
-
+#include <unistd.h>
 #include "../include/musicPlayer.h"
 #include "../include/playlist_manager.hpp"
 int main(int argc, const char* argv[]) {
+    if(getegid() != 0){
+        printf("run as root");
+        return -1;
+    }
     MusicPlayer musicPlayer;
     Playlist_Manager manager;
 
