@@ -13,8 +13,6 @@ MusicPlayer::~MusicPlayer(){
 }
 
 void MusicPlayer::addSong(int idlist, std::string songTitle,std::string filepath) {
-    audio_song* new_songs = new audio_song(idlist, songTitle, filepath);
-    
     printf("initialize newsong to all nodes\n");
     audio_song* song = new audio_song(idlist,songTitle,filepath);
     manager.push_back(song);
@@ -32,7 +30,7 @@ void MusicPlayer::data_callback(ma_device* pDevice, void* pOutput,const void* pI
     ma_uint64 framesRead = 0;
     if (ma_decoder_read_pcm_frames(&player->pDecoder, pOutput, frameCount,&framesRead) && framesRead == frameCount) {
         ma_decoder_seek_to_pcm_frame(&player->pDecoder, framesRead);
-        //kondisi apa disini
+        player->endOfsong = true;
     }
     (void)pInput;
 }
